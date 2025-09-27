@@ -1,0 +1,1334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - AI Resume Matcher</title>
+    
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+        .gradient-bg { background: linear-gradient(135deg, #1e3a8a 0%, #3730a3 100%); }
+        .glass-effect { 
+            background: rgba(255, 255, 255, 0.1); 
+            backdrop-filter: blur(20px); 
+            border: 1px solid rgba(255, 255, 255, 0.2); 
+        }
+        .card-hover:hover { transform: translateY(-2px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2); }
+        .sidebar-transition { transition: all 0.3s ease; }
+        .prediction-item { transition: all 0.3s ease; }
+        .prediction-item:hover { background: rgba(255, 255, 255, 0.1); }
+        .metric-animation { animation: countUp 2s ease-out; }
+        @keyframes countUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .loading-spinner { animation: spin 1s linear infinite; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .status-indicator { animation: pulse 2s infinite; }
+        .model-card { 
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(20px);
+        }
+        .prediction-form {
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.08) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(25px);
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen">
+    
+    <!-- Sidebar -->
+    <div id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 glass-effect transform -translate-x-full lg:translate-x-0 sidebar-transition">
+        <div class="flex items-center justify-center h-16 border-b border-white border-opacity-20">
+            <div class="flex items-center">
+                <i class="fas fa-brain text-white text-2xl mr-3"></i>
+                <span class="text-white text-xl font-bold">AI Matcher</span>
+            </div>
+        </div>
+        
+        <nav class="mt-8">
+            <a href="#overview" onclick="showSection('overview')" class="nav-item flex items-center px-6 py-3 text-white hover:bg-white hover:bg-opacity-10 transition-colors duration-200">
+                <i class="fas fa-tachometer-alt mr-3"></i>
+                Overview
+            </a>
+            <a href="#predictions" onclick="showSection('predictions')" class="nav-item flex items-center px-6 py-3 text-white hover:bg-white hover:bg-opacity-10 transition-colors duration-200">
+                <i class="fas fa-magic mr-3"></i>
+                Predictions
+            </a>
+            <a href="#batch" onclick="showSection('batch')" class="nav-item flex items-center px-6 py-3 text-white hover:bg-white hover:bg-opacity-10 transition-colors duration-200">
+                <i class="fas fa-layer-group mr-3"></i>
+                Batch Processing
+            </a>
+            <a href="#models" onclick="showSection('models')" class="nav-item flex items-center px-6 py-3 text-white hover:bg-white hover:bg-opacity-10 transition-colors duration-200">
+                <i class="fas fa-brain mr-3"></i>
+                Models
+            </a>
+            <a href="#analytics" onclick="showSection('analytics')" class="nav-item flex items-center px-6 py-3 text-white hover:bg-white hover:bg-opacity-10 transition-colors duration-200">
+                <i class="fas fa-chart-bar mr-3"></i>
+                Analytics
+            </a>
+            <a href="#settings" onclick="showSection('settings')" class="nav-item flex items-center px-6 py-3 text-white hover:bg-white hover:bg-opacity-10 transition-colors duration-200">
+                <i class="fas fa-cog mr-3"></i>
+                Settings
+            </a>
+        </nav>
+        
+        <!-- System Status -->
+        <div class="absolute bottom-4 left-4 right-4">
+            <div class="glass-effect rounded-lg p-3">
+                <div class="flex items-center justify-between text-white text-sm">
+                    <span>System Status</span>
+                    <div class="flex items-center">
+                        <div id="statusIndicator" class="w-2 h-2 bg-green-400 rounded-full mr-2 status-indicator"></div>
+                        <span id="statusText">Online</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile menu button -->
+    <div class="lg:hidden fixed top-4 left-4 z-50">
+        <button onclick="toggleSidebar()" class="glass-effect rounded-lg p-2 text-white">
+            <i class="fas fa-bars text-xl"></i>
+        </button>
+    </div>
+
+    <!-- Main Content -->
+    <div class="lg:ml-64 min-h-screen">
+        
+        <!-- Header -->
+        <header class="glass-effect">
+            <div class="px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <h1 id="sectionTitle" class="text-2xl font-bold text-white">Dashboard Overview</h1>
+                    <div class="flex items-center space-x-4">
+                        <div class="text-white text-sm">
+                            <span id="currentTime"></span>
+                        </div>
+                        <button onclick="refreshData()" class="glass-effect rounded-lg p-2 text-white hover:bg-white hover:bg-opacity-10 transition-colors duration-200">
+                            <i id="refreshIcon" class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Dashboard Content -->
+        <div class="p-6">
+            
+            <!-- Overview Section -->
+            <div id="overview-section" class="section">
+                <!-- Metrics Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="glass-effect rounded-xl p-6 card-hover transition-all duration-300">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-300 text-sm font-medium">Total Predictions</p>
+                                <p id="totalPredictions" class="text-3xl font-bold text-white metric-animation">0</p>
+                            </div>
+                            <div class="bg-blue-500 bg-opacity-20 rounded-full p-3">
+                                <i class="fas fa-chart-line text-blue-400 text-xl"></i>
+                            </div>
+                        </div>
+                        <div class="mt-4">
+                            <span class="text-green-400 text-sm font-medium">
+                                <i class="fas fa-arrow-up mr-1"></i>
+                                <span id="predictionsGrowth">12%</span>
+                            </span>
+                            <span class="text-gray-400 text-sm ml-2">from last week</span>
+                        </div>
+                    </div>
+
+                    <div class="glass-effect rounded-xl p-6 card-hover transition-all duration-300">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-300 text-sm font-medium">Match Rate</p>
+                                <p id="matchRate" class="text-3xl font-bold text-white metric-animation">0%</p>
+                            </div>
+                            <div class="bg-green-500 bg-opacity-20 rounded-full p-3">
+                                <i class="fas fa-check-circle text-green-400 text-xl"></i>
+                            </div>
+                        </div>
+                        <div class="mt-4">
+                            <span class="text-green-400 text-sm font-medium">
+                                <i class="fas fa-arrow-up mr-1"></i>
+                                <span id="successGrowth">5%</span>
+                            </span>
+                            <span class="text-gray-400 text-sm ml-2">improvement</span>
+                        </div>
+                    </div>
+
+                    <div class="glass-effect rounded-xl p-6 card-hover transition-all duration-300">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-300 text-sm font-medium">Avg Response Time</p>
+                                <p id="avgResponseTime" class="text-3xl font-bold text-white metric-animation">0ms</p>
+                            </div>
+                            <div class="bg-purple-500 bg-opacity-20 rounded-full p-3">
+                                <i class="fas fa-clock text-purple-400 text-xl"></i>
+                            </div>
+                        </div>
+                        <div class="mt-4">
+                            <span class="text-green-400 text-sm font-medium">
+                                <i class="fas fa-arrow-down mr-1"></i>
+                                <span id="responseTimeImprovement">8%</span>
+                            </span>
+                            <span class="text-gray-400 text-sm ml-2">faster</span>
+                        </div>
+                    </div>
+
+                    <div class="glass-effect rounded-xl p-6 card-hover transition-all duration-300">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-300 text-sm font-medium">Active Models</p>
+                                <p id="activeModels" class="text-3xl font-bold text-white metric-animation">0</p>
+                            </div>
+                            <div class="bg-yellow-500 bg-opacity-20 rounded-full p-3">
+                                <i class="fas fa-brain text-yellow-400 text-xl"></i>
+                            </div>
+                        </div>
+                        <div class="mt-4">
+                            <span class="text-blue-400 text-sm font-medium">
+                                <i class="fas fa-info-circle mr-1"></i>
+                                <span id="modelStatus">All systems operational</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Row -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                    <div class="glass-effect rounded-xl p-6">
+                        <h3 class="text-xl font-bold text-white mb-4">Prediction Trends</h3>
+                        <canvas id="predictionsChart"></canvas>
+                    </div>
+                    
+                    <div class="glass-effect rounded-xl p-6">
+                        <h3 class="text-xl font-bold text-white mb-4">Model Performance</h3>
+                        <canvas id="performanceChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="glass-effect rounded-xl p-6">
+                    <h3 class="text-xl font-bold text-white mb-4">Recent Predictions</h3>
+                    <div id="recentActivity" class="space-y-3">
+                        <!-- Recent predictions will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Predictions Section -->
+            <div id="predictions-section" class="section hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Single Prediction Form -->
+                    <div class="prediction-form rounded-xl p-6">
+                        <h3 class="text-xl font-bold text-white mb-6">Single Prediction</h3>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-white text-sm font-medium mb-2">CV Skills</label>
+                                <textarea id="singleCvSkill" class="w-full h-32 bg-white bg-opacity-10 border border-white border-opacity-30 rounded-lg p-3 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="Enter CV skills and experience..."></textarea>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-white text-sm font-medium mb-2">Job Requirements</label>
+                                <textarea id="singleJdRequirement" class="w-full h-32 bg-white bg-opacity-10 border border-white border-opacity-30 rounded-lg p-3 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="Enter job requirements..."></textarea>
+                            </div>
+                            
+                            <div class="flex items-center space-x-4">
+                                <div>
+                                    <label class="block text-white text-sm font-medium mb-2">Model</label>
+                                    <select id="singleModelSelect" class="bg-white bg-opacity-10 border border-white border-opacity-30 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-400">
+                                        <option value="auto">Auto (Recommended)</option>
+                                        <option value="traditional">Traditional ML</option>
+                                        <option value="bert">BERT</option>
+                                        <option value="ensemble">Ensemble</option>
+                                    </select>
+                                </div>
+                                <div class="flex items-center mt-6">
+                                    <input type="checkbox" id="includeSimilarity" checked class="mr-2">
+                                    <label for="includeSimilarity" class="text-white text-sm">Include similarity scores</label>
+                                </div>
+                            </div>
+                            
+                            <button onclick="makeSinglePrediction()" class="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white font-bold py-3 px-6 rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-300">
+                                <i class="fas fa-magic mr-2"></i>
+                                Predict Match
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Results Display -->
+                    <div class="glass-effect rounded-xl p-6">
+                        <h3 class="text-xl font-bold text-white mb-6">Prediction Result</h3>
+                        <div id="singlePredictionResult" class="text-center text-gray-400">
+                            Make a prediction to see results here
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Batch Processing Section -->
+            <div id="batch-section" class="section hidden">
+                <div class="glass-effect rounded-xl p-6">
+                    <h3 class="text-xl font-bold text-white mb-6">Batch Prediction Processing</h3>
+                    
+                    <div class="mb-6">
+                        <label class="block text-white text-sm font-medium mb-2">Upload CSV File</label>
+                        <div class="border-2 border-dashed border-white border-opacity-30 rounded-lg p-8 text-center">
+                            <input type="file" id="batchFile" accept=".csv" class="hidden" onchange="handleFileUpload(event)">
+                            <i class="fas fa-cloud-upload-alt text-4xl text-white mb-4"></i>
+                            <p class="text-white mb-2">Drag and drop your CSV file here, or click to browse</p>
+                            <button onclick="document.getElementById('batchFile').click()" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg transition-colors duration-300">
+                                Choose File
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="batchPreview" class="hidden mb-6">
+                        <h4 class="text-lg font-bold text-white mb-4">File Preview</h4>
+                        <div class="bg-white bg-opacity-10 rounded-lg p-4 overflow-x-auto">
+                            <table id="previewTable" class="w-full text-white text-sm">
+                                <!-- Table content will be populated by JavaScript -->
+                            </table>
+                        </div>
+                        
+                        <div class="mt-4 flex justify-between items-center">
+                            <div class="text-white">
+                                <span id="fileStats"></span>
+                            </div>
+                            <button onclick="processBatch()" class="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-lg transition-colors duration-300">
+                                <i class="fas fa-play mr-2"></i>
+                                Process Batch
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="batchProgress" class="hidden">
+                        <h4 class="text-lg font-bold text-white mb-4">Processing Progress</h4>
+                        <div class="bg-white bg-opacity-10 rounded-lg p-4">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-white">Progress</span>
+                                <span id="progressPercentage" class="text-white">0%</span>
+                            </div>
+                            <div class="w-full bg-gray-700 rounded-full h-2">
+                                <div id="progressBar" class="bg-blue-500 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                            </div>
+                            <div class="mt-4 text-sm text-gray-300">
+                                <span id="processedCount">0</span> of <span id="totalCount">0</span> predictions completed
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="batchResults" class="hidden mt-6">
+                        <h4 class="text-lg font-bold text-white mb-4">Batch Results</h4>
+                        <div class="bg-white bg-opacity-10 rounded-lg p-4">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                                <div class="text-center">
+                                    <div id="batchSuccessCount" class="text-2xl font-bold text-green-400">0</div>
+                                    <div class="text-sm text-gray-300">Successful</div>
+                                </div>
+                                <div class="text-center">
+                                    <div id="batchErrorCount" class="text-2xl font-bold text-red-400">0</div>
+                                    <div class="text-sm text-gray-300">Errors</div>
+                                </div>
+                                <div class="text-center">
+                                    <div id="batchTotalTime" class="text-2xl font-bold text-blue-400">0ms</div>
+                                    <div class="text-sm text-gray-300">Total Time</div>
+                                </div>
+                            </div>
+                            <button onclick="downloadResults()" class="w-full bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg transition-colors duration-300">
+                                <i class="fas fa-download mr-2"></i>
+                                Download Results
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Models Section -->
+            <div id="models-section" class="section hidden">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="modelCards">
+                    <!-- Model cards will be populated by JavaScript -->
+                </div>
+                
+                <!-- Model Comparison -->
+                <div class="mt-8 glass-effect rounded-xl p-6">
+                    <h3 class="text-xl font-bold text-white mb-6">Model Comparison</h3>
+                    <div class="overflow-x-auto">
+                        <table id="modelComparisonTable" class="w-full text-white">
+                            <thead>
+                                <tr class="border-b border-white border-opacity-20">
+                                    <th class="text-left py-3 px-4">Model</th>
+                                    <th class="text-left py-3 px-4">Speed</th>
+                                    <th class="text-left py-3 px-4">Accuracy</th>
+                                    <th class="text-left py-3 px-4">Usage</th>
+                                    <th class="text-left py-3 px-4">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="modelComparisonBody">
+                                <!-- Table rows will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analytics Section -->
+            <div id="analytics-section" class="section hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                    <div class="glass-effect rounded-xl p-6">
+                        <h3 class="text-xl font-bold text-white mb-4">Prediction Distribution</h3>
+                        <canvas id="distributionChart"></canvas>
+                    </div>
+                    
+                    <div class="glass-effect rounded-xl p-6">
+                        <h3 class="text-xl font-bold text-white mb-4">Response Time Trends</h3>
+                        <canvas id="responseTimeChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="glass-effect rounded-xl p-6">
+                    <h3 class="text-xl font-bold text-white mb-4">Detailed Analytics</h3>
+                    <div id="detailedAnalytics">
+                        <!-- Detailed analytics will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Section -->
+            <div id="settings-section" class="section hidden">
+                <div class="glass-effect rounded-xl p-6">
+                    <h3 class="text-xl font-bold text-white mb-6">System Settings</h3>
+                    
+                    <div class="space-y-6">
+                        <div>
+                            <h4 class="text-lg font-semibold text-white mb-3">Model Configuration</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-white text-sm font-medium mb-2">Default Model</label>
+                                    <select class="bg-white bg-opacity-10 border border-white border-opacity-30 rounded-lg px-3 py-2 text-white w-full">
+                                        <option value="auto">Auto Selection</option>
+                                        <option value="traditional">Traditional ML</option>
+                                        <option value="bert">BERT</option>
+                                        <option value="ensemble">Ensemble</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-white text-sm font-medium mb-2">Max Batch Size</label>
+                                    <input type="number" value="100" class="bg-white bg-opacity-10 border border-white border-opacity-30 rounded-lg px-3 py-2 text-white w-full" max="1000">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h4 class="text-lg font-semibold text-white mb-3">API Configuration</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-white text-sm font-medium mb-2">Rate Limit (per minute)</label>
+                                    <input type="number" value="60" class="bg-white bg-opacity-10 border border-white border-opacity-30 rounded-lg px-3 py-2 text-white w-full">
+                                </div>
+                                <div>
+                                    <label class="block text-white text-sm font-medium mb-2">Timeout (seconds)</label>
+                                    <input type="number" value="30" class="bg-white bg-opacity-10 border border-white border-opacity-30 rounded-lg px-3 py-2 text-white w-full">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex justify-end space-x-4">
+                            <button class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-lg transition-colors duration-300">
+                                Reset to Defaults
+                            </button>
+                            <button class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg transition-colors duration-300">
+                                Save Settings
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // Global variables
+        let currentSection = 'overview';
+        let charts = {};
+        let batchData = null;
+        let batchResults = null;
+        let predictionHistory = [];
+        
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeDashboard();
+            updateClock();
+            setInterval(updateClock, 1000);
+            setInterval(refreshData, 30000); // Refresh every 30 seconds
+        });
+        
+        function initializeDashboard() {
+            checkSystemStatus();
+            loadOverviewData();
+            setupCharts();
+            setActiveNavItem('overview');
+        }
+        
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('currentTime').textContent = now.toLocaleString();
+        }
+        
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('-translate-x-full');
+        }
+        
+        function showSection(sectionName) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.add('hidden');
+            });
+            
+            // Show selected section
+            document.getElementById(sectionName + '-section').classList.remove('hidden');
+            
+            // Update nav
+            setActiveNavItem(sectionName);
+            currentSection = sectionName;
+            
+            // Update title
+            const titles = {
+                'overview': 'Dashboard Overview',
+                'predictions': 'Single Predictions',
+                'batch': 'Batch Processing',
+                'models': 'Model Management',
+                'analytics': 'Analytics & Insights',
+                'settings': 'System Settings'
+            };
+            document.getElementById('sectionTitle').textContent = titles[sectionName];
+            
+            // Load section-specific data
+            loadSectionData(sectionName);
+        }
+        
+        function setActiveNavItem(sectionName) {
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('bg-white', 'bg-opacity-10');
+            });
+            
+            const activeItem = document.querySelector(`[onclick="showSection('${sectionName}')"]`);
+            if (activeItem) {
+                activeItem.classList.add('bg-white', 'bg-opacity-10');
+            }
+        }
+        
+        async function checkSystemStatus() {
+            try {
+                const response = await fetch('/api/health');
+                const data = await response.json();
+                
+                if (response.ok && data.status === 'healthy') {
+                    document.getElementById('statusIndicator').className = 'w-2 h-2 bg-green-400 rounded-full mr-2 status-indicator';
+                    document.getElementById('statusText').textContent = 'Online';
+                } else {
+                    document.getElementById('statusIndicator').className = 'w-2 h-2 bg-red-400 rounded-full mr-2 status-indicator';
+                    document.getElementById('statusText').textContent = 'Issues';
+                }
+            } catch (error) {
+                document.getElementById('statusIndicator').className = 'w-2 h-2 bg-yellow-400 rounded-full mr-2 status-indicator';
+                document.getElementById('statusText').textContent = 'Offline';
+            }
+        }
+        
+        function loadOverviewData() {
+            const stats = calculateStats();
+            updateMetrics(stats);
+            updateRecentActivity(predictionHistory);
+            updateCharts();
+        }
+        
+        function calculateStats() {
+            if (predictionHistory.length === 0) {
+                return {
+                    total_predictions: 0,
+                    match_rate: 0,
+                    avg_response_time: 0,
+                    model_usage: {}
+                };
+            }
+            const total = predictionHistory.length;
+            const match_rate = predictionHistory.filter(p => p.prediction === 1).length / total;
+            const avg_response_time = predictionHistory.reduce((sum, p) => sum + (p.processing_time_ms || 0), 0) / total;
+            const model_usage = {};
+            predictionHistory.forEach(p => {
+                const model = p.model_type || 'unknown';
+                model_usage[model] = (model_usage[model] || 0) + 1;
+            });
+            return {
+                total_predictions: total,
+                match_rate,
+                avg_response_time,
+                model_usage
+            };
+        }
+        
+        function updateMetrics(stats) {
+            document.getElementById('totalPredictions').textContent = stats.total_predictions || 0;
+            document.getElementById('matchRate').textContent = ((stats.match_rate || 0) * 100).toFixed(1) + '%';
+            document.getElementById('avgResponseTime').textContent = (stats.avg_response_time || 0).toFixed(1) + 'ms';
+            document.getElementById('activeModels').textContent = Object.keys(stats.model_usage || {}).length || 0;
+        }
+        
+        function updateRecentActivity(history) {
+            const container = document.getElementById('recentActivity');
+            
+            if (history.length === 0) {
+                container.innerHTML = `
+                    <div class="text-gray-400 text-center py-8">
+                        <i class="fas fa-chart-line text-2xl mb-2"></i>
+                        <p>No recent activity to display</p>
+                        <p class="text-sm">Make some predictions to see activity here</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            const recent = history.slice(-5).reverse();
+            container.innerHTML = recent.map(activity => {
+                const success = activity.prediction === 1;
+                const result = success ? 'Match Found' : 'No Match';
+                const model = (activity.model_type || 'unknown').charAt(0).toUpperCase() + (activity.model_type || 'unknown').slice(1);
+                const confidence = Math.floor(activity.probability * 100);
+                const processingTime = Math.floor(activity.processing_time_ms || 0);
+                const time = new Date(activity.timestamp).toLocaleTimeString();
+                return `
+                    <div class="prediction-item flex items-center justify-between p-3 rounded-lg">
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 rounded-full ${success ? 'bg-green-500' : 'bg-red-500'} bg-opacity-20 flex items-center justify-center mr-3">
+                                <i class="fas ${success ? 'fa-check' : 'fa-times'} text-${success ? 'green' : 'red'}-400 text-sm"></i>
+                            </div>
+                            <div>
+                                <p class="text-white text-sm">${result}</p>
+                                <p class="text-gray-400 text-xs">${model} • ${time}</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-white text-sm font-semibold">${confidence}%</p>
+                            <p class="text-gray-400 text-xs">${processingTime}ms</p>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function setupCharts() {
+            // Predictions trend chart
+            const predictionsCtx = document.getElementById('predictionsChart');
+            if (predictionsCtx) {
+                charts.predictions = new Chart(predictionsCtx, {
+                    type: 'line',
+                    data: {
+                        labels: [],
+                        datasets: [{
+                            label: 'Predictions',
+                            data: [],
+                            borderColor: 'rgb(59, 130, 246)',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { labels: { color: 'white' } }
+                        },
+                        scales: {
+                            x: { ticks: { color: 'white' }, grid: { color: 'rgba(255,255,255,0.1)' } },
+                            y: { ticks: { color: 'white' }, grid: { color: 'rgba(255,255,255,0.1)' } }
+                        }
+                    }
+                });
+            }
+            
+            // Performance chart
+            const performanceCtx = document.getElementById('performanceChart');
+            if (performanceCtx) {
+                charts.performance = new Chart(performanceCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: [],
+                        datasets: [{
+                            data: [],
+                            backgroundColor: ['#3B82F6', '#8B5CF6', '#10B981'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { labels: { color: 'white' } }
+                        }
+                    }
+                });
+            }
+            
+            // Analytics charts
+            setupAnalyticsCharts();
+        }
+        
+        function setupAnalyticsCharts() {
+            // Distribution chart
+            const distributionCtx = document.getElementById('distributionChart');
+            if (distributionCtx) {
+                charts.distribution = new Chart(distributionCtx, {
+                    type: 'pie',
+                    data: {
+                        labels: ['Matches', 'No Matches'],
+                        datasets: [{
+                            data: [0, 0],
+                            backgroundColor: ['#10B981', '#EF4444'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { labels: { color: 'white' } }
+                        }
+                    }
+                });
+            }
+            
+            // Response time chart
+            const responseTimeCtx = document.getElementById('responseTimeChart');
+            if (responseTimeCtx) {
+                charts.responseTime = new Chart(responseTimeCtx, {
+                    type: 'line',
+                    data: {
+                        labels: [],
+                        datasets: [{
+                            label: 'Response Time (ms)',
+                            data: [],
+                            borderColor: '#8B5CF6',
+                            backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { labels: { color: 'white' } }
+                        },
+                        scales: {
+                            x: { ticks: { color: 'white' }, grid: { color: 'rgba(255,255,255,0.1)' } },
+                            y: { ticks: { color: 'white' }, grid: { color: 'rgba(255,255,255,0.1)' } }
+                        }
+                    }
+                });
+            }
+        }
+        
+        function updateCharts() {
+            // Update predictions trend chart
+            const days = {};
+            predictionHistory.forEach(p => {
+                const day = new Date(p.timestamp).toLocaleDateString();
+                days[day] = (days[day] || 0) + 1;
+            });
+            const labels = Object.keys(days).sort();
+            const data = labels.map(d => days[d]);
+            if (charts.predictions) {
+                charts.predictions.data.labels = labels;
+                charts.predictions.data.datasets[0].data = data;
+                charts.predictions.update();
+            }
+
+            // Update model performance chart
+            const modelCounts = calculateModelUsage();
+            const modelLabels = Object.keys(modelCounts);
+            const modelData = modelLabels.map(m => modelCounts[m]);
+            if (charts.performance) {
+                charts.performance.data.labels = modelLabels;
+                charts.performance.data.datasets[0].data = modelData;
+                charts.performance.update();
+            }
+        }
+        
+        function updateAnalyticsCharts() {
+            // Update distribution chart
+            const matches = predictionHistory.filter(p => p.prediction === 1).length;
+            const noMatches = predictionHistory.length - matches;
+            if (charts.distribution) {
+                charts.distribution.data.datasets[0].data = [matches, noMatches];
+                charts.distribution.update();
+            }
+
+            // Update response time chart
+            const hours = {};
+            predictionHistory.forEach(p => {
+                const hour = new Date(p.timestamp).getHours() + ':00';
+                hours[hour] = hours[hour] || {sum: 0, count: 0};
+                hours[hour].sum += p.processing_time_ms || 0;
+                hours[hour].count++;
+            });
+            const hourLabels = Object.keys(hours).sort((a, b) => parseInt(a) - parseInt(b));
+            const hourData = hourLabels.map(h => hours[h].sum / hours[h].count);
+            if (charts.responseTime) {
+                charts.responseTime.data.labels = hourLabels;
+                charts.responseTime.data.datasets[0].data = hourData;
+                charts.responseTime.update();
+            }
+        }
+        
+        async function makeSinglePrediction() {
+            const cvSkill = document.getElementById('singleCvSkill').value.trim();
+            const jdRequirement = document.getElementById('singleJdRequirement').value.trim();
+            const modelType = document.getElementById('singleModelSelect').value;
+            const includeSimilarity = document.getElementById('includeSimilarity').checked;
+            
+            if (!cvSkill || !jdRequirement) {
+                alert('Please fill in both CV skills and job requirements');
+                return;
+            }
+            
+            const predictBtn = document.querySelector('button[onclick="makeSinglePrediction()"]');
+            const resultDiv = document.getElementById('singlePredictionResult');
+            
+            predictBtn.disabled = true;
+            predictBtn.innerHTML = '<i class="fas fa-spinner loading-spinner mr-2"></i>Analyzing...';
+            
+            resultDiv.innerHTML = '<i class="fas fa-spinner loading-spinner text-blue-400 text-2xl"></i><p class="text-white mt-2">Making prediction...</p>';
+            
+            try {
+                const response = await fetch('/api/predictions/single', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        cv_skill: cvSkill,
+                        jd_requirement: jdRequirement,
+                        model_type: modelType,
+                        include_similarity: includeSimilarity
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    const prediction = {
+                        cv_skill: cvSkill,
+                        jd_requirement: jdRequirement,
+                        ...result.data,
+                        timestamp: new Date().toISOString()
+                    };
+                    predictionHistory.push(prediction);
+                    displaySingleResult(result.data);
+                    if (currentSection === 'overview') {
+                        loadOverviewData();
+                    }
+                } else {
+                    resultDiv.innerHTML = `<div class="text-red-400"><i class="fas fa-exclamation-circle text-2xl mb-2"></i><p>Error: ${result.detail}</p></div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="text-red-400"><i class="fas fa-exclamation-circle text-2xl mb-2"></i><p>Network error: ${error.message}</p></div>`;
+            } finally {
+                predictBtn.disabled = false;
+                predictBtn.innerHTML = '<i class="fas fa-magic mr-2"></i>Predict Match';
+            }
+        }
+        
+        function displaySingleResult(data) {
+            const isMatch = data.prediction === 1;
+            const resultDiv = document.getElementById('singlePredictionResult');
+            
+            const confidenceColor = getConfidenceColor(data.confidence_level);
+            
+            resultDiv.innerHTML = `
+                <div class="text-center">
+                    <div class="text-6xl mb-4">${isMatch ? '✅' : '❌'}</div>
+                    <h4 class="text-2xl font-bold mb-2 ${isMatch ? 'text-green-400' : 'text-red-400'}">${data.match_status}</h4>
+                    <p class="text-lg text-gray-300 mb-4">${(data.probability * 100).toFixed(1)}% Match Probability</p>
+                    <span class="inline-block px-4 py-2 rounded-full text-sm font-semibold ${confidenceColor}">${data.confidence_level}</span>
+                    
+                    <div class="mt-6 space-y-3 text-left">
+                        <div class="flex justify-between">
+                            <span class="text-gray-300">Model Used:</span>
+                            <span class="text-white">${data.model_type}</span>
+                        </div>
+                        ${data.similarity_scores ? `
+                            <div class="flex justify-between">
+                                <span class="text-gray-300">TF-IDF Similarity:</span>
+                                <span class="text-white">${data.similarity_scores.tfidf_similarity?.toFixed(3) || 'N/A'}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-300">Semantic Similarity:</span>
+                                <span class="text-white">${data.similarity_scores.semantic_similarity?.toFixed(3) || 'N/A'}</span>
+                            </div>
+                        ` : ''}
+                        <div class="flex justify-between">
+                            <span class="text-gray-300">Processing Time:</span>
+                            <span class="text-white">${data.processing_time_ms?.toFixed(1) || 'N/A'}ms</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6">
+                        <div class="w-full bg-gray-700 rounded-full h-2">
+                            <div class="h-2 rounded-full transition-all duration-1000 ${getConfidenceBarColor(data.confidence)}" style="width: ${(data.confidence * 100).toFixed(1)}%"></div>
+                        </div>
+                        <div class="text-sm text-gray-300 mt-2">Confidence: ${(data.confidence * 100).toFixed(1)}%</div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function getConfidenceColor(level) {
+            const colors = {
+                'Very High': 'bg-green-500 text-white',
+                'High': 'bg-blue-500 text-white',
+                'Medium': 'bg-yellow-500 text-black',
+                'Low': 'bg-orange-500 text-white',
+                'Very Low': 'bg-red-500 text-white'
+            };
+            return colors[level] || 'bg-gray-500 text-white';
+        }
+        
+        function getConfidenceBarColor(confidence) {
+            if (confidence >= 0.9) return 'bg-green-500';
+            if (confidence >= 0.8) return 'bg-blue-500';
+            if (confidence >= 0.7) return 'bg-yellow-500';
+            if (confidence >= 0.6) return 'bg-orange-500';
+            return 'bg-red-500';
+        }
+        
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            if (!file.name.toLowerCase().endsWith('.csv')) {
+                alert('Please select a CSV file');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const csv = e.target.result;
+                parseCSV(csv, file.name);
+            };
+            reader.readAsText(file);
+        }
+        
+        function parseCSV(csv, filename) {
+            const lines = csv.split('\n').filter(line => line.trim());
+            if (lines.length < 2) {
+                alert('CSV file must have at least a header and one data row');
+                return;
+            }
+            
+            const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
+            const data = lines.slice(1).map(line => {
+                const values = line.split(',').map(v => v.trim().replace(/"/g, ''));
+                return headers.reduce((obj, header, index) => {
+                    obj[header] = values[index] || '';
+                    return obj;
+                }, {});
+            });
+            
+            // Check for required columns
+            const requiredColumns = ['cv_skill', 'jd_requirement'];
+            const missingColumns = requiredColumns.filter(col => !headers.includes(col));
+            
+            if (missingColumns.length > 0) {
+                alert(`Missing required columns: ${missingColumns.join(', ')}`);
+                return;
+            }
+            
+            batchData = data;
+            displayFilePreview(headers, data, filename);
+        }
+        
+        function displayFilePreview(headers, data, filename) {
+            const previewDiv = document.getElementById('batchPreview');
+            const table = document.getElementById('previewTable');
+            const stats = document.getElementById('fileStats');
+            
+            // Create table HTML
+            let tableHTML = '<thead><tr>';
+            headers.forEach(header => {
+                tableHTML += `<th class="px-3 py-2 border-b border-white border-opacity-20">${header}</th>`;
+            });
+            tableHTML += '</tr></thead><tbody>';
+            
+            // Show first 5 rows
+            const previewRows = data.slice(0, 5);
+            previewRows.forEach(row => {
+                tableHTML += '<tr>';
+                headers.forEach(header => {
+                    const value = row[header] || '';
+                    const displayValue = value.length > 50 ? value.substring(0, 50) + '...' : value;
+                    tableHTML += `<td class="px-3 py-2 border-b border-white border-opacity-10">${displayValue}</td>`;
+                });
+                tableHTML += '</tr>';
+            });
+            tableHTML += '</tbody>';
+            
+            table.innerHTML = tableHTML;
+            stats.textContent = `File: ${filename}, Rows: ${data.length}, Columns: ${headers.length}`;
+            
+            previewDiv.classList.remove('hidden');
+        }
+        
+        async function processBatch() {
+            if (!batchData) {
+                alert('No file data available');
+                return;
+            }
+            
+            const progressDiv = document.getElementById('batchProgress');
+            const resultsDiv = document.getElementById('batchResults');
+            
+            progressDiv.classList.remove('hidden');
+            resultsDiv.classList.add('hidden');
+            
+            const totalCount = batchData.length;
+            document.getElementById('totalCount').textContent = totalCount;
+            
+            try {
+                // Prepare batch request
+                const predictions = batchData.map(row => ({
+                    cv_skill: row.cv_skill || '',
+                    jd_requirement: row.jd_requirement || '',
+                    model_type: 'auto',
+                    include_similarity: true
+                }));
+                
+                const response = await fetch('/api/predictions/batch', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        predictions: predictions
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    // Merge original batchData with prediction results
+                    batchResults = result.data.map((res, index) => ({
+                        ...batchData[index],
+                        ...res,
+                        timestamp: new Date().toISOString()
+                    }));
+                    batchResults.forEach(res => predictionHistory.push(res));
+                    displayBatchResults(result);
+                    if (currentSection === 'overview') {
+                        loadOverviewData();
+                    }
+                } else {
+                    alert('Batch processing failed: ' + (result.detail || 'Unknown error'));
+                }
+            } catch (error) {
+                alert('Network error: ' + error.message);
+            }
+        }
+        
+        function displayBatchResults(result) {
+            const progressDiv = document.getElementById('batchProgress');
+            const resultsDiv = document.getElementById('batchResults');
+            
+            // Simulate progress animation
+            let progress = 0;
+            const progressInterval = setInterval(() => {
+                progress += 10;
+                document.getElementById('progressBar').style.width = `${progress}%`;
+                document.getElementById('progressPercentage').textContent = `${progress}%`;
+                document.getElementById('processedCount').textContent = Math.floor((progress / 100) * result.total_count);
+                
+                if (progress >= 100) {
+                    clearInterval(progressInterval);
+                    
+                    // Show results
+                    document.getElementById('batchSuccessCount').textContent = result.success_count;
+                    document.getElementById('batchErrorCount').textContent = result.error_count || 0;
+                    
+                    const totalTime = batchResults.reduce((sum, item) => sum + (item.processing_time_ms || 0), 0);
+                    document.getElementById('batchTotalTime').textContent = totalTime.toFixed(1) + 'ms';
+                    
+                    resultsDiv.classList.remove('hidden');
+                }
+            }, 200);
+        }
+        
+        function downloadResults() {
+            if (!batchResults) {
+                alert('No results available for download');
+                return;
+            }
+            
+            // Convert results to CSV
+            const headers = ['cv_skill', 'jd_requirement', 'prediction', 'probability', 'confidence', 'match_status', 'confidence_level', 'model_type'];
+            let csv = headers.join(',') + '\n';
+            
+            batchResults.forEach(result => {
+                const row = [
+                    '"' + (result.cv_skill || '').replace(/"/g, '""') + '"',
+                    '"' + (result.jd_requirement || '').replace(/"/g, '""') + '"',
+                    result.prediction || 0,
+                    result.probability || 0,
+                    result.confidence || 0,
+                    result.match_status || '',
+                    result.confidence_level || '',
+                    result.model_type || ''
+                ];
+                csv += row.join(',') + '\n';
+            });
+            
+            // Download file with unique timestamp
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `batch_predictions_${new Date().toISOString().replace(/T/, '_').replace(/:/g, '-').slice(0,19)}.csv`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+        
+        async function loadSectionData(sectionName) {
+            switch (sectionName) {
+                case 'overview':
+                    loadOverviewData();
+                    break;
+                case 'models':
+                    await loadModelData();
+                    break;
+                case 'analytics':
+                    loadAnalyticsData();
+                    updateAnalyticsCharts();
+                    break;
+                default:
+                    break;
+            }
+        }
+        
+        function calculateModelUsage() {
+            const usage = {};
+            predictionHistory.forEach(p => {
+                usage[p.model_type] = (usage[p.model_type] || 0) + 1;
+            });
+            return usage;
+        }
+        
+        async function loadModelData() {
+            try {
+                const response = await fetch('/api/predictions/models');
+                const data = await response.json();
+                
+                if (response.ok) {
+                    displayModelCards(data.available_models);
+                    displayModelComparison(data.available_models, calculateModelUsage());
+                }
+            } catch (error) {
+                console.error('Error loading model data:', error);
+                // Show default model info when API is not available
+                displayDefaultModelInfo();
+            }
+        }
+        
+        function displayDefaultModelInfo() {
+            const defaultModels = [
+                {
+                    type: 'traditional',
+                    name: 'Traditional ML',
+                    description: 'TF-IDF + ML algorithms',
+                    loaded: true,
+                    speed: 'Fast',
+                    accuracy: 'Good'
+                },
+                {
+                    type: 'bert',
+                    name: 'BERT Transformer',
+                    description: 'Fine-tuned BERT model',
+                    loaded: true,
+                    speed: 'Medium',
+                    accuracy: 'High'
+                },
+                {
+                    type: 'ensemble',
+                    name: 'Ensemble Model',
+                    description: 'Combines multiple models',
+                    loaded: true,
+                    speed: 'Medium',
+                    accuracy: 'Highest'
+                }
+            ];
+            
+            displayModelCards(defaultModels);
+            displayModelComparison(defaultModels, calculateModelUsage());
+        }
+        
+        function displayModelCards(models) {
+            const container = document.getElementById('modelCards');
+            container.innerHTML = '';
+            
+            models.forEach(model => {
+                const card = document.createElement('div');
+                card.className = 'model-card rounded-xl p-6 card-hover transition-all duration-300';
+                
+                const statusColor = model.loaded ? 'text-green-400' : 'text-red-400';
+                const statusIcon = model.loaded ? 'fas fa-check-circle' : 'fas fa-times-circle';
+                
+                card.innerHTML = `
+                    <div class="flex items-center justify-between mb-4">
+                        <h4 class="text-xl font-bold text-white">${model.name}</h4>
+                        <i class="${statusIcon} ${statusColor} text-xl"></i>
+                    </div>
+                    <p class="text-gray-300 mb-4">${model.description}</p>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">Speed:</span>
+                            <span class="text-white">${model.speed}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">Accuracy:</span>
+                            <span class="text-white">${model.accuracy}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">Status:</span>
+                            <span class="${statusColor}">${model.loaded ? 'Available' : 'Not Loaded'}</span>
+                        </div>
+                    </div>
+                `;
+                
+                container.appendChild(card);
+            });
+        }
+        
+        function displayModelComparison(models, model_usage) {
+            const tbody = document.getElementById('modelComparisonBody');
+            tbody.innerHTML = '';
+            
+            models.forEach(model => {
+                const row = document.createElement('tr');
+                row.className = 'border-b border-white border-opacity-10';
+                
+                const statusBadge = model.loaded 
+                    ? '<span class="bg-green-500 text-white px-2 py-1 rounded-full text-xs">Active</span>'
+                    : '<span class="bg-red-500 text-white px-2 py-1 rounded-full text-xs">Inactive</span>';
+                
+                row.innerHTML = `
+                    <td class="py-3 px-4">${model.name}</td>
+                    <td class="py-3 px-4">${model.speed}</td>
+                    <td class="py-3 px-4">${model.accuracy}</td>
+                    <td class="py-3 px-4">${model_usage[model.type] || 0}</td>
+                    <td class="py-3 px-4">${statusBadge}</td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+        }
+        
+        function loadAnalyticsData() {
+            const detailedAnalytics = document.getElementById('detailedAnalytics');
+            const total = predictionHistory.length;
+            if (total === 0) {
+                detailedAnalytics.innerHTML = '<p class="text-gray-300">No predictions yet</p>';
+                return;
+            }
+            const matchRate = (predictionHistory.filter(p => p.prediction === 1).length / total * 100).toFixed(1);
+            const avgTime = (predictionHistory.reduce((sum, p) => sum + (p.processing_time_ms || 0), 0) / total).toFixed(0);
+            const modelUsages = calculateModelUsage();
+            const totalUsage = Object.values(modelUsages).reduce((sum, val) => sum + val, 0);
+            const bertUsage = ((modelUsages.bert || 0) / totalUsage * 100).toFixed(1);
+            const tradUsage = ((modelUsages.traditional || 0) / totalUsage * 100).toFixed(1);
+            const ensUsage = ((modelUsages.ensemble || 0) / totalUsage * 100).toFixed(1);
+            let best = 'None';
+            if (totalUsage > 0) {
+                best = Object.keys(modelUsages).reduce((a, b) => modelUsages[a] > modelUsages[b] ? a : b);
+                best = best.charAt(0).toUpperCase() + best.slice(1);
+            }
+            const avgConf = (predictionHistory.reduce((sum, p) => sum + (p.confidence || 0), 0) / total * 100).toFixed(1);
+            detailedAnalytics.innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="bg-white bg-opacity-10 rounded-lg p-4">
+                        <h4 class="text-lg font-semibold text-white mb-2">Match Metrics</h4>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex justify-between">
+                                <span class="text-gray-300">Match Rate:</span>
+                                <span class="text-white">${matchRate}%</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-300">Average Confidence:</span>
+                                <span class="text-white">${avgConf}%</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white bg-opacity-10 rounded-lg p-4">
+                        <h4 class="text-lg font-semibold text-white mb-2">Performance Stats</h4>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex justify-between">
+                                <span class="text-gray-300">Avg Response Time:</span>
+                                <span class="text-white">${avgTime}ms</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-300">Error Rate:</span>
+                                <span class="text-white">0.0%</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white bg-opacity-10 rounded-lg p-4">
+                        <h4 class="text-lg font-semibold text-white mb-2">Model Statistics</h4>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex justify-between">
+                                <span class="text-gray-300">BERT Usage:</span>
+                                <span class="text-white">${bertUsage}%</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-300">Traditional ML:</span>
+                                <span class="text-white">${tradUsage}%</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-300">Ensemble:</span>
+                                <span class="text-white">${ensUsage}%</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-300">Most Used:</span>
+                                <span class="text-white">${best}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        async function refreshData() {
+            const refreshIcon = document.getElementById('refreshIcon');
+            refreshIcon.classList.add('loading-spinner');
+            
+            try {
+                await checkSystemStatus();
+                
+                if (currentSection === 'overview') {
+                    loadOverviewData();
+                } else {
+                    await loadSectionData(currentSection);
+                }
+            } catch (error) {
+                console.error('Error refreshing data:', error);
+            } finally {
+                refreshIcon.classList.remove('loading-spinner');
+            }
+        }
+    </script>
+</body>
+</html>

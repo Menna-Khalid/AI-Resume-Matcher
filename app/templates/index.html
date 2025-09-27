@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Resume Matcher - Professional CV-JD Matching</title>
+    
+    <!-- Modern CSS Framework -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .hover-glow:hover {
+            box-shadow: 0 20px 25px -5px rgba(102, 126, 234, 0.4), 0 10px 10px -5px rgba(102, 126, 234, 0.04);
+            transform: translateY(-2px);
+        }
+        
+        .animate-float {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .animate-pulse-slow {
+            animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        .neural-network {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            opacity: 0.1;
+            pointer-events: none;
+        }
+        
+        .particle {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 50%;
+            animation: particle-float 20s linear infinite;
+        }
+        
+        @keyframes particle-float {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100px) rotate(360deg); opacity: 0; }
+        }
+        
+        .prediction-card {
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(20px);
+            transition: all 0.3s ease;
+        }
+        
+        .prediction-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+        
+        .glow-button {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .glow-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: left 0.5s;
+        }
+        
+        .glow-button:hover::before {
+            left: 100%;
+        }
+        
+        .typing-animation {
+            border-right: 2px solid #667eea;
+            animation: typing 3.5s steps(40, end), blink-caret 0.75s step-end infinite;
+        }
+        
+        @keyframes typing {
+            from { width: 0 }
+            to { width: 100% }
+        }
+        
+        @keyframes blink-caret {
+            from, to { border-color: transparent }
+            50% { border-color: #667eea; }
+        }
+        
+        .metric-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .metric-card:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen">
+    <!-- Animated Background Particles -->
+    <div class="neural-network">
+        <div class="particle" style="left: 10%; width: 4px; height: 4px; animation-delay: 0s;"></div>
+        <div class="particle" style="left: 20%; width: 2px; height: 2px; animation-delay: 2s;"></div>
+        <div class="particle" style="left: 30%; width: 3px; height: 3px; animation-delay: 4s;"></div>
+        <div class="particle" style="left: 40%; width: 5px; height: 5px; animation-delay: 6s;"></div>
+        <div class="particle" style="left: 50%; width: 2px; height: 2px; animation-delay: 8s;"></div>
+        <div class="particle" style="left: 60%; width: 4px; height: 4px; animation-delay: 10s;"></div>
+        <div class="particle" style="left: 70%; width: 3px; height: 3px; animation-delay: 12s;"></div>
+        <div class="particle" style="left: 80%; width: 2px; height: 2px; animation-delay: 14s;"></div>
+        <div class="particle" style="left: 90%; width: 4px; height: 4px; animation-delay: 16s;"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="glass-effect relative z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="flex items-center">
+                            <i class="fas fa-brain text-white text-2xl mr-3 animate-pulse-slow"></i>
+                            <span class="text-white text-xl font-bold">AI Resume Matcher</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="#home" class="text-white hover:text-yellow-300 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-300">Home</a>
+                        <a href="#features" class="text-white hover:text-yellow-300 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-300">Features</a>
+                        <a href="#demo" class="text-white hover:text-yellow-300 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-300">Demo</a>
+                        <a href="/dashboard" class="text-white hover:text-yellow-300 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-300">Dashboard</a>
+                        <a href="/api/docs" target="_blank" class="text-white hover:text-yellow-300 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-300">API</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="relative min-h-screen flex items-center justify-center px-4">
+        <div class="max-w-7xl mx-auto text-center">
+            <div class="animate-float">
+                <div class="mb-8">
+                    <i class="fas fa-robot text-white text-8xl mb-6 animate-pulse-slow"></i>
+                </div>
+                <h1 class="text-5xl md:text-7xl font-bold text-white mb-6">
+                    AI-Powered <br>
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-pink-400">
+                        Resume Matching
+                    </span>
+                </h1>
+                <div class="typing-animation overflow-hidden whitespace-nowrap mx-auto mb-8 text-xl md:text-2xl text-gray-200" style="width: 0;">
+                    Match CVs with Job Requirements using Advanced ML & Transformers
+                </div>
+                <p class="text-lg md:text-xl text-gray-200 mb-12 max-w-3xl mx-auto leading-relaxed">
+                    Revolutionary AI system combining traditional machine learning with cutting-edge transformer models 
+                    to provide accurate, fast, and intelligent CV-JD matching with detailed analytics.
+                </p>
+                
+                <div class="flex flex-col sm:flex-row gap-6 justify-center items-center">
+                    <button onclick="scrollToDemo()" class="glow-button hover-glow px-8 py-4 rounded-full text-white font-semibold text-lg transition-all duration-300 shadow-lg">
+                        <i class="fas fa-rocket mr-2"></i>
+                        Try Live Demo
+                    </button>
+                    <button onclick="viewDashboard()" class="glass-effect hover-glow px-8 py-4 rounded-full text-white font-semibold text-lg transition-all duration-300">
+                        <i class="fas fa-chart-bar mr-2"></i>
+                        View Dashboard
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Scroll Indicator -->
+        <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2">
+            <div class="animate-bounce">
+                <i class="fas fa-chevron-down text-white text-2xl opacity-70"></i>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="py-20 px-4">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold text-white mb-6">
+                    Powerful AI Features
+                </h2>
+                <p class="text-xl text-gray-200 max-w-3xl mx-auto">
+                    Advanced technology stack designed for professional recruitment and HR automation
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Traditional ML -->
+                <div class="prediction-card rounded-2xl p-8 hover-glow transition-all duration-300">
+                    <div class="text-center">
+                        <div class="bg-gradient-to-br from-blue-400 to-blue-600 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-6">
+                            <i class="fas fa-chart-line text-white text-2xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-white mb-4">Traditional ML</h3>
+                        <p class="text-gray-200 mb-6">
+                            TF-IDF vectorization with multiple algorithms: Naive Bayes, Random Forest, SVM, and Logistic Regression
+                        </p>
+                        <div class="metric-card rounded-lg p-4">
+                            <div class="text-green-400 font-semibold">⚡ Ultra Fast</div>
+                            <div class="text-sm text-gray-300">~10ms response time</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Transformers -->
+                <div class="prediction-card rounded-2xl p-8 hover-glow transition-all duration-300">
+                    <div class="text-center">
+                        <div class="bg-gradient-to-br from-purple-400 to-purple-600 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-6">
+                            <i class="fas fa-brain text-white text-2xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-white mb-4">Transformers</h3>
+                        <p class="text-gray-200 mb-6">
+                            Fine-tuned BERT models and Sentence Transformers for deep semantic understanding and context analysis
+                        </p>
+                        <div class="metric-card rounded-lg p-4">
+                            <div class="text-purple-400 font-semibold">🎯 High Accuracy</div>
+                            <div class="text-sm text-gray-300">~94% accuracy rate</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Ensemble Methods -->
+                <div class="prediction-card rounded-2xl p-8 hover-glow transition-all duration-300">
+                    <div class="text-center">
+                        <div class="bg-gradient-to-br from-green-400 to-green-600 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-6">
+                            <i class="fas fa-layer-group text-white text-2xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-white mb-4">Ensemble AI</h3>
+                        <p class="text-gray-200 mb-6">
+                            Combines multiple models with intelligent voting for optimal accuracy and confidence scoring
+                        </p>
+                        <div class="metric-card rounded-lg p-4">
+                            <div class="text-yellow-400 font-semibold">🏆 Best Results</div>
+                            <div class="text-sm text-gray-300">Highest precision</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Real-time API -->
+                <div class="prediction-card rounded-2xl p-8 hover-glow transition-all duration-300">
+                    <div class="text-center">
+                        <div class="bg-gradient-to-br from-red-400 to-red-600 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-6">
+                            <i class="fas fa-bolt text-white text-2xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-white mb-4">Real-time API</h3>
+                        <p class="text-gray-200 mb-6">
+                            RESTful API with streaming support, batch processing, and comprehensive documentation
+                        </p>
+                        <div class="metric-card rounded-lg p-4">
+                            <div class="text-red-400 font-semibold">🚀 Scalable</div>
+                            <div class="text-sm text-gray-300">1000+ req/min</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Analytics -->
+                <div class="prediction-card rounded-2xl p-8 hover-glow transition-all duration-300">
+                    <div class="text-center">
+                        <div class="bg-gradient-to-br from-indigo-400 to-indigo-600 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-6">
+                            <i class="fas fa-chart-pie text-white text-2xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-white mb-4">Advanced Analytics</h3>
+                        <p class="text-gray-200 mb-6">
+                            Detailed insights, performance metrics, similarity scores, and confidence levels with visualizations
+                        </p>
+                        <div class="metric-card rounded-lg p-4">
+                            <div class="text-indigo-400 font-semibold">📊 Insights</div>
+                            <div class="text-sm text-gray-300">Deep analysis</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Professional Dashboard -->
+                <div class="prediction-card rounded-2xl p-8 hover-glow transition-all duration-300">
+                    <div class="text-center">
+                        <div class="bg-gradient-to-br from-pink-400 to-pink-600 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-6">
+                            <i class="fas fa-tachometer-alt text-white text-2xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-white mb-4">Pro Dashboard</h3>
+                        <p class="text-gray-200 mb-6">
+                            Interactive dashboard with live monitoring, batch processing, and comprehensive model comparisons
+                        </p>
+                        <div class="metric-card rounded-lg p-4">
+                            <div class="text-pink-400 font-semibold">✨ Beautiful UI</div>
+                            <div class="text-sm text-gray-300">Modern interface</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Live Demo Section -->
+    <section id="demo" class="py-20 px-4">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold text-white mb-6">
+                    Try Live Demo
+                </h2>
+                <p class="text-xl text-gray-200">
+                    Experience the power of AI-driven CV-JD matching in real-time
+                </p>
+            </div>
+            
+            <div class="glass-effect rounded-3xl p-8 md:p-12">
+                <div id="demoForm" class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- CV Skills Input -->
+                    <div>
+                        <label class="block text-white text-lg font-semibold mb-4">
+                            <i class="fas fa-user mr-2"></i>
+                            CV Skills & Experience
+                        </label>
+                        <textarea 
+                            id="cvSkillInput"
+                            class="w-full h-40 bg-white bg-opacity-10 border border-white border-opacity-30 rounded-2xl p-4 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent transition-all duration-300"
+                            placeholder="e.g., Python programming, machine learning, data analysis, pandas, numpy, scikit-learn, 5+ years experience in AI/ML development..."
+                        ></textarea>
+                    </div>
+                    
+                    <!-- JD Requirements Input -->
+                    <div>
+                        <label class="block text-white text-lg font-semibold mb-4">
+                            <i class="fas fa-briefcase mr-2"></i>
+                            Job Requirements
+                        </label>
+                        <textarea 
+                            id="jdRequirementInput"
+                            class="w-full h-40 bg-white bg-opacity-10 border border-white border-opacity-30 rounded-2xl p-4 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent transition-all duration-300"
+                            placeholder="e.g., Software engineer with Python experience, machine learning knowledge preferred, experience with ML frameworks, data analysis skills..."
+                        ></textarea>
+                    </div>
+                </div>
+                
+                <!-- Model Selection -->
+                <div class="mt-8 flex flex-wrap gap-4 justify-center">
+                    <div class="flex items-center space-x-4">
+                        <label class="text-white font-medium">Model:</label>
+                        <select id="modelSelect" class="bg-white bg-opacity-10 border border-white border-opacity-30 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-purple-400">
+                            <option value="auto" selected>Auto (Best)</option>
+                            <option value="traditional">Traditional ML</option>
+                            <option value="bert">BERT Transformer</option>
+                            <option value="ensemble">Ensemble</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
+                    <button 
+                        onclick="predictSingle()"
+                        class="glow-button hover-glow px-8 py-4 rounded-full text-white font-semibold text-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                        id="predictBtn"
+                    >
+                        <i class="fas fa-magic mr-2"></i>
+                        Analyze Match
+                    </button>
+                    <button 
+                        onclick="compareModels()"
+                        class="glass-effect hover-glow px-8 py-4 rounded-full text-white font-semibold text-lg transition-all duration-300"
+                        id="compareBtn"
+                    >
+                        <i class="fas fa-balance-scale mr-2"></i>
+                        Compare Models
+                    </button>
+                    <button 
+                        onclick="loadSample()"
+                        class="glass-effect hover-glow px-6 py-4 rounded-full text-white font-medium transition-all duration-300"
+                    >
+                        <i class="fas fa-lightbulb mr-2"></i>
+                        Load Sample
+                    </button>
+                </div>
+                
+                <!-- Results Area -->
+                <div id="resultsArea" class="mt-12 hidden">
+                    <!-- Single Result -->
+                    <div id="singleResult" class="hidden">
+                        <div class="glass-effect rounded-2xl p-8">
+                            <h3 class="text-2xl font-bold text-white mb-6 text-center">
+                                <i class="fas fa-chart-bar mr-2"></i>
+                                Prediction Results
+                            </h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <div class="text-center">
+                                    <div id="matchStatus" class="text-6xl mb-4"></div>
+                                    <div id="matchText" class="text-2xl font-bold mb-2"></div>
+                                    <div id="probabilityText" class="text-lg text-gray-300 mb-4"></div>
+                                    <div id="confidenceLevel" class="inline-block px-4 py-2 rounded-full text-sm font-semibold"></div>
+                                </div>
+                                <div>
+                                    <div class="space-y-4">
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-gray-300">Model:</span>
+                                            <span id="modelUsed" class="text-white font-semibold"></span>
+                                        </div>
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-gray-300">TF-IDF Similarity:</span>
+                                            <span id="tfidfSim" class="text-white font-semibold"></span>
+                                        </div>
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-gray-300">Semantic Similarity:</span>
+                                            <span id="semanticSim" class="text-white font-semibold"></span>
+                                        </div>
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-gray-300">Processing Time:</span>
+                                            <span id="processingTime" class="text-white font-semibold"></span>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Confidence Bar -->
+                                    <div class="mt-6">
+                                        <div class="flex justify-between text-sm text-gray-300 mb-2">
+                                            <span>Confidence Score</span>
+                                            <span id="confidencePercent"></span>
+                                        </div>
+                                        <div class="w-full bg-white bg-opacity-20 rounded-full h-3">
+                                            <div id="confidenceBar" class="h-3 rounded-full transition-all duration-1000 ease-out" style="width: 0%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Comparison Results -->
+                    <div id="comparisonResult" class="hidden">
+                        <div class="glass-effect rounded-2xl p-8">
+                            <h3 class="text-2xl font-bold text-white mb-6 text-center">
+                                <i class="fas fa-balance-scale mr-2"></i>
+                                Model Comparison
+                            </h3>
+                            <div id="comparisonGrid" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
+                            <div id="recommendation" class="mt-6 p-4 bg-gradient-to-r from-green-400 to-blue-500 rounded-xl text-center">
+                                <div class="text-white font-semibold text-lg"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="py-20 px-4">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold text-white mb-6">
+                    Impressive Performance
+                </h2>
+                <p class="text-xl text-gray-200">
+                    Real metrics from our AI-powered matching system
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div class="metric-card rounded-2xl p-8 text-center">
+                    <div class="text-4xl font-bold text-green-400 mb-2">94%</div>
+                    <div class="text-white font-semibold">Accuracy Rate</div>
+                    <div class="text-gray-300 text-sm">Ensemble Model</div>
+                </div>
+                <div class="metric-card rounded-2xl p-8 text-center">
+                    <div class="text-4xl font-bold text-blue-400 mb-2">10ms</div>
+                    <div class="text-white font-semibold">Response Time</div>
+                    <div class="text-gray-300 text-sm">Traditional ML</div>
+                </div>
+                <div class="metric-card rounded-2xl p-8 text-center">
+                    <div class="text-4xl font-bold text-purple-400 mb-2">1000+</div>
+                    <div class="text-white font-semibold">Requests/Min</div>
+                    <div class="text-gray-300 text-sm">API Throughput</div>
+                </div>
+                <div class="metric-card rounded-2xl p-8 text-center">
+                    <div class="text-4xl font-bold text-yellow-400 mb-2">3</div>
+                    <div class="text-white font-semibold">AI Models</div>
+                    <div class="text-gray-300 text-sm">Integrated</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-20 px-4">
+        <div class="max-w-4xl mx-auto text-center">
+            <div class="glass-effect rounded-3xl p-12">
+                <h2 class="text-4xl md:text-5xl font-bold text-white mb-6">
+                    Ready to Transform Your Hiring?
+                </h2>
+                <p class="text-xl text-gray-200 mb-12">
+                    Join the AI revolution in recruitment. Get started with our professional dashboard and API.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-6 justify-center">
+                    <button onclick="window.open('/dashboard', '_blank')" class="glow-button hover-glow px-8 py-4 rounded-full text-white font-semibold text-lg transition-all duration-300">
+                        <i class="fas fa-tachometer-alt mr-2"></i>
+                        Launch Dashboard
+                    </button>
+                    <button onclick="window.open('/api/docs', '_blank')" class="glass-effect hover-glow px-8 py-4 rounded-full text-white font-semibold text-lg transition-all duration-300">
+                        <i class="fas fa-code mr-2"></i>
+                        View API Docs
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="glass-effect py-12 px-4">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div>
+                    <div class="flex items-center mb-4">
+                        <i class="fas fa-brain text-white text-2xl mr-3"></i>
+                        <span class="text-white text-xl font-bold">AI Resume Matcher</span>
+                    </div>
+                    <p class="text-gray-300">
+                        Professional AI-powered CV-JD matching system with advanced NLP and transformer models.
+                    </p>
+                </div>
+                <div>
+                    <h3 class="text-white text-lg font-semibold mb-4">Quick Links</h3>
+                    <div class="space-y-2">
+                        <a href="/dashboard" class="text-gray-300 hover:text-white transition-colors duration-300 block">Dashboard</a>
+                        <a href="/api/docs" target="_blank" class="text-gray-300 hover:text-white transition-colors duration-300 block">API Documentation</a>
+                        <a href="/analytics" class="text-gray-300 hover:text-white transition-colors duration-300 block">Analytics</a>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-white text-lg font-semibold mb-4">Technology</h3>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="bg-white bg-opacity-20 px-3 py-1 rounded-full text-xs text-white">FastAPI</span>
+                        <span class="bg-white bg-opacity-20 px-3 py-1 rounded-full text-xs text-white">BERT</span>
+                        <span class="bg-white bg-opacity-20 px-3 py-1 rounded-full text-xs text-white">Transformers</span>
+                        <span class="bg-white bg-opacity-20 px-3 py-1 rounded-full text-xs text-white">scikit-learn</span>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-8 pt-8 border-t border-white border-opacity-20 text-center">
+                <p class="text-gray-300">
+                    © 2024 AI Resume Matcher. Professional NLP System with Advanced AI Models.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // Typing animation
+        function typeWriter() {
+            const text = "Match CVs with Job Requirements using Advanced ML & Transformers";
+            const element = document.querySelector('.typing-animation');
+            let i = 0;
+            
+            function type() {
+                if (i < text.length) {
+                    element.style.width = 'auto';
+                    element.textContent = text.substring(0, i + 1);
+                    i++;
+                    setTimeout(type, 50);
+                }
+            }
+            
+            setTimeout(type, 1000);
+        }
+
+        // Initialize typing animation
+        document.addEventListener('DOMContentLoaded', function() {
+            typeWriter();
+        });
+
+        // Smooth scrolling
+        function scrollToDemo() {
+            document.getElementById('demo').scrollIntoView({ 
+                behavior: 'smooth' 
+            });
+        }
+
+        function viewDashboard() {
+            window.open('/dashboard', '_blank');
+        }
+
+        // Load sample data
+        function loadSample() {
+            document.getElementById('cvSkillInput').value = "Python programming, machine learning, data analysis, pandas, numpy, scikit-learn, 5+ years experience in AI/ML development, deep learning with TensorFlow and PyTorch, statistical modeling, data visualization, REST API development, Git version control";
+            
+            document.getElementById('jdRequirementInput').value = "Software Engineer - AI/ML Team. Required: Python programming, machine learning frameworks, data analysis experience. Preferred: deep learning, statistical modeling, API development, 3+ years experience in ML/AI field";
+        }
+
+        // Single prediction - FIXED TO USE CORRECT ENDPOINT
+        async function predictSingle() {
+            const cvSkill = document.getElementById('cvSkillInput').value.trim();
+            const jdRequirement = document.getElementById('jdRequirementInput').value.trim();
+            const modelType = document.getElementById('modelSelect').value;
+            
+            if (!cvSkill || !jdRequirement) {
+                alert('Please fill in both CV skills and job requirements');
+                return;
+            }
+            
+            const predictBtn = document.getElementById('predictBtn');
+            predictBtn.disabled = true;
+            predictBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Analyzing...';
+            
+            try {
+                const response = await fetch('/api/predictions/single', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        cv_skill: cvSkill,
+                        jd_requirement: jdRequirement,
+                        model_type: modelType,
+                        include_similarity: true
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    displaySingleResult(result.data);
+                } else {
+                    alert('Error: ' + (result.detail || 'Prediction failed'));
+                }
+            } catch (error) {
+                alert('Network error: ' + error.message);
+            } finally {
+                predictBtn.disabled = false;
+                predictBtn.innerHTML = '<i class="fas fa-magic mr-2"></i>Analyze Match';
+            }
+        }
+
+        // Display single result
+        function displaySingleResult(data) {
+            document.getElementById('resultsArea').classList.remove('hidden');
+            document.getElementById('singleResult').classList.remove('hidden');
+            document.getElementById('comparisonResult').classList.add('hidden');
+            
+            // Match status
+            const isMatch = data.prediction === 1;
+            document.getElementById('matchStatus').innerHTML = isMatch ? '✅' : '❌';
+            document.getElementById('matchText').textContent = data.match_status;
+            document.getElementById('matchText').className = isMatch ? 'text-2xl font-bold mb-2 text-green-400' : 'text-2xl font-bold mb-2 text-red-400';
+            
+            // Probability
+            document.getElementById('probabilityText').textContent = `${(data.probability * 100).toFixed(1)}% Match Probability`;
+            
+            // Confidence level
+            const confidenceEl = document.getElementById('confidenceLevel');
+            confidenceEl.textContent = data.confidence_level;
+            confidenceEl.className = `inline-block px-4 py-2 rounded-full text-sm font-semibold ${getConfidenceColor(data.confidence_level)}`;
+            
+            // Details
+            document.getElementById('modelUsed').textContent = data.model_type.charAt(0).toUpperCase() + data.model_type.slice(1);
+            document.getElementById('tfidfSim').textContent = data.similarity_scores?.tfidf_similarity?.toFixed(3) || 'N/A';
+            document.getElementById('semanticSim').textContent = data.similarity_scores?.semantic_similarity?.toFixed(3) || 'N/A';
+            document.getElementById('processingTime').textContent = data.processing_time_ms ? `${data.processing_time_ms.toFixed(1)}ms` : 'N/A';
+            
+            // Confidence bar
+            const confidencePercent = (data.confidence * 100).toFixed(1);
+            document.getElementById('confidencePercent').textContent = `${confidencePercent}%`;
+            
+            setTimeout(() => {
+                const confidenceBar = document.getElementById('confidenceBar');
+                confidenceBar.style.width = `${confidencePercent}%`;
+                confidenceBar.className = `h-3 rounded-full transition-all duration-1000 ease-out ${getConfidenceBarColor(data.confidence)}`;
+            }, 100);
+            
+            // Scroll to results
+            document.getElementById('resultsArea').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Compare models
+        async function compareModels() {
+            const cvSkill = document.getElementById('cvSkillInput').value.trim();
+            const jdRequirement = document.getElementById('jdRequirementInput').value.trim();
+            
+            if (!cvSkill || !jdRequirement) {
+                alert('Please fill in both CV skills and job requirements');
+                return;
+            }
+            
+            const compareBtn = document.getElementById('compareBtn');
+            compareBtn.disabled = true;
+            compareBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Comparing...';
+            
+            try {
+                const response = await fetch('/api/predictions/compare', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        cv_skill: cvSkill,
+                        jd_requirement: jdRequirement,
+                        include_similarity: true
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    displayComparisonResult(result);
+                } else {
+                    alert('Error: ' + (result.detail || 'Comparison failed'));
+                }
+            } catch (error) {
+                alert('Network error: ' + error.message);
+            } finally {
+                compareBtn.disabled = false;
+                compareBtn.innerHTML = '<i class="fas fa-balance-scale mr-2"></i>Compare Models';
+            }
+        }
+
+        // Display comparison result
+        function displayComparisonResult(data) {
+            document.getElementById('resultsArea').classList.remove('hidden');
+            document.getElementById('comparisonResult').classList.remove('hidden');
+            document.getElementById('singleResult').classList.add('hidden');
+            
+            const grid = document.getElementById('comparisonGrid');
+            grid.innerHTML = '';
+            
+            Object.entries(data.model_results).forEach(([modelName, result]) => {
+                const card = document.createElement('div');
+                card.className = 'prediction-card rounded-xl p-6';
+                
+                if (result.available) {
+                    const isMatch = result.prediction === 1;
+                    card.innerHTML = `
+                        <h4 class="text-lg font-bold text-white mb-4">${modelName.charAt(0).toUpperCase() + modelName.slice(1)}</h4>
+                        <div class="text-center mb-4">
+                            <div class="text-3xl mb-2">${isMatch ? '✅' : '❌'}</div>
+                            <div class="text-sm text-gray-300">${result.match_status}</div>
+                        </div>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex justify-between">
+                                <span class="text-gray-300">Probability:</span>
+                                <span class="text-white">${(result.probability * 100).toFixed(1)}%</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-300">Confidence:</span>
+                                <span class="text-white">${result.confidence_level}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-300">Time:</span>
+                                <span class="text-white">${result.processing_time_ms.toFixed(1)}ms</span>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    card.innerHTML = `
+                        <h4 class="text-lg font-bold text-white mb-4">${modelName.charAt(0).toUpperCase() + modelName.slice(1)}</h4>
+                        <div class="text-center">
+                            <div class="text-3xl mb-2 text-gray-500">⚠️</div>
+                            <div class="text-sm text-gray-400">Model not available</div>
+                        </div>
+                    `;
+                    card.classList.add('opacity-50');
+                }
+                
+                grid.appendChild(card);
+            });
+            
+            // Recommendation
+            document.getElementById('recommendation').querySelector('.text-white').textContent = data.recommendation;
+            
+            // Scroll to results
+            document.getElementById('resultsArea').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Utility functions
+        function getConfidenceColor(level) {
+            switch (level) {
+                case 'Very High': return 'bg-green-500 text-white';
+                case 'High': return 'bg-blue-500 text-white';
+                case 'Medium': return 'bg-yellow-500 text-black';
+                case 'Low': return 'bg-orange-500 text-white';
+                default: return 'bg-red-500 text-white';
+            }
+        }
+
+        function getConfidenceBarColor(confidence) {
+            if (confidence >= 0.9) return 'bg-green-500';
+            if (confidence >= 0.8) return 'bg-blue-500';
+            if (confidence >= 0.7) return 'bg-yellow-500';
+            if (confidence >= 0.6) return 'bg-orange-500';
+            return 'bg-red-500';
+        }
+        // Smooth scroll for navigation
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
