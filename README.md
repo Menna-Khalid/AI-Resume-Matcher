@@ -11,30 +11,30 @@ The **AI-Resume-Matcher** is a sophisticated, end-to-end solution designed to re
 The core functionality is built around a pre-trained **Transformer-based model** and a **TF-IDF Vectorizer** combined with **Cosine Similarity** to calculate the semantic similarity between the two documents. This approach moves beyond simple keyword matching to understand the context and meaning of the text, ensuring a highly relevant matching score.
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/ba879a3b-e619-48d0-91f5-b5c2750e1d51" width="300">
-  <img src="https://github.com/user-attachments/assets/a19641c4-b602-4ebf-a9c1-bd1b837e6020" width="300">
-  <img src="https://github.com/user-attachments/assets/d4e630ec-9548-49de-9446-3c661b85e9d4" width="300">
+  <img src="https://github.com/user-attachments/assets/ba879a3b-e619-48d0-91f5-b5c2750e1d51" width="200">
+  <img src="https://github.com/user-attachments/assets/a19641c4-b602-4ebf-a9c1-bd1b837e6020" width="200">
+  <img src="https://github.com/user-attachments/assets/d4e630ec-9548-49de-9446-3c661b85e9d4" width="200">
 </p>
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/69819dc8-d43a-495f-84e7-7fc6d863ec18" width="300">
-  <img src="https://github.com/user-attachments/assets/5172cdcd-3125-49ee-a8f9-3a4aa8846e2d" width="300">
-  <img src="https://github.com/user-attachments/assets/f3703376-6bd9-4bf8-86ef-243d7e6405e5" width="300">
+  <img src="https://github.com/user-attachments/assets/69819dc8-d43a-495f-84e7-7fc6d863ec18" width="200">
+  <img src="https://github.com/user-attachments/assets/5172cdcd-3125-49ee-a8f9-3a4aa8846e2d" width="200">
+  <img src="https://github.com/user-attachments/assets/f3703376-6bd9-4bf8-86ef-243d7e6405e5" width="200">
 </p>
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/eb3bf69c-61db-401a-a1b4-70125062a890" width="300">
-  <img src="https://github.com/user-attachments/assets/d583b963-0d32-460e-8d24-fa28e64f7383" width="300">
-  <img src="https://github.com/user-attachments/assets/60368257-19b0-4c76-90c3-df1409832163" width="300">
+  <img src="https://github.com/user-attachments/assets/eb3bf69c-61db-401a-a1b4-70125062a890" width="200">
+  <img src="https://github.com/user-attachments/assets/d583b963-0d32-460e-8d24-fa28e64f7383" width="200">
+  <img src="https://github.com/user-attachments/assets/60368257-19b0-4c76-90c3-df1409832163" width="200">
 </p>
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/3880ee27-cd78-436e-a0d6-66105a0f3904" width="300">
-  <img src="https://github.com/user-attachments/assets/3c8f9ea7-2513-4c5f-8aeb-85cfaecfd592" width="300">
-  <img src="https://github.com/user-attachments/assets/49c97fe2-3ad5-498f-902f-a5e1847ebf63" width="300">
+  <img src="https://github.com/user-attachments/assets/3880ee27-cd78-436e-a0d6-66105a0f3904" width="200">
+  <img src="https://github.com/user-attachments/assets/3c8f9ea7-2513-4c5f-8aeb-85cfaecfd592" width="200">
+  <img src="https://github.com/user-attachments/assets/49c97fe2-3ad5-498f-902f-a5e1847ebf63" width="200">
 </p>
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/592e12b7-66b7-46fd-9392-38cf94cf67bd" width="300">
-  <img src="https://github.com/user-attachments/assets/b54ad01f-70fd-4240-9e5f-90d128350d4d" width="300">
-  <img src="https://github.com/user-attachments/assets/117da4bd-6014-44e5-b27c-0712096e8ff1" width="300">
-  <img src="https://github.com/user-attachments/assets/0a318733-b89e-456b-a021-99fe4111f26b" width="300">
+  <img src="https://github.com/user-attachments/assets/592e12b7-66b7-46fd-9392-38cf94cf67bd" width="200">
+  <img src="https://github.com/user-attachments/assets/b54ad01f-70fd-4240-9e5f-90d128350d4d" width="200">
+  <img src="https://github.com/user-attachments/assets/117da4bd-6014-44e5-b27c-0712096e8ff1" width="200">
+  <img src="https://github.com/user-attachments/assets/0a318733-b89e-456b-a021-99fe4111f26b" width="200">
 </p>
 
 ### Key Features📌
